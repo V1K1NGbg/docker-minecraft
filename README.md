@@ -6,4 +6,4 @@
 - [Fabric](https://fabricmc.net/)
 - [Velocity](https://velocitypowered.com/)
 - [Vanilla](https://www.minecraft.net/) (Not yet, but maybe)
-- [Waterfall](https://papermc.io/) (Depreciated)
+- [Waterfall](https://papermc.io/) (Deprecated)

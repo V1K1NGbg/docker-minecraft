@@ -1,0 +1,48 @@
+FROM eclipse-temurin:17-jdk as build
+
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
+    && git config --global core.autocrlf input
+
+ARG version=1.21.4
+ARG build=152
+
+ENV version=$version
+ENV build=$build
+
+# curl https://papermc.io/api/v2/projects/paper/
+# for version
+
+# curl https://papermc.io/api/v2/projects/paper/versions/${version}
+# for build
+
+RUN wget "https://papermc.io/api/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar" -O "paper.jar"
+
+######################################################################################
+
+FROM eclipse-temurin:17-jdk
+
+RUN apt-get update -y
+RUN apt-get upgrade -y
+
+COPY --from=build /paper.jar /
+
+RUN mkdir -p /data \
+    && mkdir -p /plugins \
+    && adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
+    && chown -R minecraft /data /plugins /home/minecraft \
+    && chmod -R 755 /data /home/minecraft
+
+VOLUME ["/data","/plugins"]
+
+WORKDIR /data
+
+USER minecraft
+
+ENV min=1
+ENV max=2
+
+CMD ln -sf /plugins /data/ \
+    && echo 'eula=TRUE' > eula.txt \
+    && java "-Xms${min}G" "-Xmx${max}G" -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true -jar /paper.jar nogui
+
+EXPOSE 25565
