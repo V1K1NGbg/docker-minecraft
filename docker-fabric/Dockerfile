@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk as build
+FROM eclipse-temurin:21-jdk as build
 
 RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
     && git config --global core.autocrlf input
@@ -24,7 +24,7 @@ RUN wget "https://meta.fabricmc.net/v2/versions/loader/${version}/${loader}/${in
 
 ######################################################################################
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 
 RUN apt-get update -y && apt-get upgrade -y
 
