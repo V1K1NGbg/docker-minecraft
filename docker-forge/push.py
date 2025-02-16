@@ -37,8 +37,12 @@ while count < lines:
 
         if int(versionsshort[number].split(".")[1]) < 18:
 
-            loc[number] = "old/."
+            loc[number] = "older/."
 
+        else if int(versionsshort[number].split(".")[1]) < 20:
+
+            loc[number] = "old/."
+            
         else:
 
             loc[number] = "."
