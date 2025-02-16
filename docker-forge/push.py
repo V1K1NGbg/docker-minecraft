@@ -39,9 +39,9 @@ while count < lines:
 
             loc[number] = "older/."
 
-        # elif int(versionsshort[number].split(".")[1]) < 20:
+        elif int(versionsshort[number].split(".")[1]) < 20:
 
-        #     loc[number] = "old/."
+            loc[number] = "old/."
 
         else:
 
