@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk as build
+FROM eclipse-temurin:21-jdk as build
 
 RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
     && git config --global core.autocrlf input
@@ -9,16 +9,16 @@ ARG build=152
 ENV version=$version
 ENV build=$build
 
-# curl https://papermc.io/api/v2/projects/paper/
+# curl https://api.papermc.io/v2/projects/paper/
 # for version
 
-# curl https://papermc.io/api/v2/projects/paper/versions/${version}
+# curl https://api.papermc.io/v2/projects/paper/versions/${version}
 # for build
 
 RUN wget "https://api.papermc.io/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar" -O "paper.jar"
 ######################################################################################
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 
 RUN apt-get update -y
 RUN apt-get upgrade -y

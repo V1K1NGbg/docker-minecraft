@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk as build
+FROM eclipse-temurin:21-jdk as build
 
 RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y
 RUN git config --global core.autocrlf input
@@ -9,11 +9,11 @@ ARG build=102
 ENV version=$version
 ENV build=$build
 
-RUN wget "https://papermc.io/api/v2/projects/velocity/versions/${version}/builds/${build}/downloads/velocity-${version}-${build}.jar" -O "/velocity.jar"
+RUN wget "https://api.papermc.io/v2/projects/velocity/versions/${version}/builds/${build}/downloads/velocity-${version}-${build}.jar" -O "/velocity.jar"
 
 ######################################################################################
 
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 
 RUN apt-get update -y && apt-get upgrade -y
 
