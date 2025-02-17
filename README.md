@@ -9,3 +9,5 @@
 - [Waterfall](https://papermc.io/) (Deprecated)
 
 # !EVERYTHING NEEDS TO BE REWORKED BECAUSE OF JAVA VERSIONING BUT I DON'T HAVE THE TIME TO DO IT, THEREFORE DEPRECATED!
+
+For now...
