@@ -15,8 +15,7 @@ ENV build=$build
 # curl https://papermc.io/api/v2/projects/paper/versions/${version}
 # for build
 
-RUN wget "https://papermc.io/api/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar" -O "paper.jar"
-
+RUN wget "https://api.papermc.io/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar" -O "paper.jar"
 ######################################################################################
 
 FROM eclipse-temurin:17-jdk
