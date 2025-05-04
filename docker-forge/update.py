@@ -35,10 +35,21 @@ for i in allov:
         f.write(l+"\n")
         f.write(allv[l + "-recommended"]+"\n")
 
+        if int(l.split(".")[1]) >= 20:
+            f.write("21\n")
+        elif int(l.split(".")[1]) >= 17:
+            f.write("17\n")
+        elif int(l.split(".")[1]) >= 13:
+            f.write("11\n")
+        else:
+            f.write("8\n")
+
     l = i
 
 f.write(l+"\n")
-f.write(allv[l + "-recommended"])
+f.write(allv[l + "-recommended"]+"\n")
+f.write("21")
+
 f.close()
 
 print("Update Complete!")
