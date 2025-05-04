@@ -25,11 +25,21 @@ for i in range(len(mydict["versions"])):
 
         f.write(str(lastversion)+"\n")
         f.write(str(readandprocess("https://api.papermc.io/v2/projects/paper/versions/"+lastversion)["builds"][-1])+"\n")
+        
+        if int(lastversion.split(".")[1]) >= 20:
+            f.write("21\n")
+        elif int(lastversion.split(".")[1]) >= 17:
+            f.write("17\n")
+        elif int(lastversion.split(".")[1]) >= 13:
+            f.write("11\n")
+        else:
+            f.write("8\n")
 
     lastversion = mydict["versions"][i]
 
 f.write(str(mydict["versions"][i])+"\n")
-f.write(str(readandprocess("https://api.papermc.io/v2/projects/paper/versions/"+mydict["versions"][i])["builds"][-1]))
+f.write(str(readandprocess("https://api.papermc.io/v2/projects/paper/versions/"+mydict["versions"][i])["builds"][-1])+"\n")
+f.write("21")
 
 f.close()
 
