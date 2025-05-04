@@ -4,7 +4,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
     && git config --global core.autocrlf input
 
 # 1.21.4
-RUN wget "https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar" -O "vanilla.jar"
+RUN wget "https://piston-data.mojang.com/v1/objects/e6ec2f64e6080b9b5d9b471b291c33cc7f509733/server.jar" -O "vanilla.jar"
 
 ######################################################################################
 
