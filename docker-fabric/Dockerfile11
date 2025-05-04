@@ -1,11 +1,11 @@
-FROM eclipse-temurin:21-jdk as build
+FROM eclipse-temurin:11-jdk as build
 
 RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
     && git config --global core.autocrlf input
 
-ARG version=1.21.4
-ARG loader=0.16.10
-ARG installer=1.0.1
+ARG version=1.21.5
+ARG loader=0.16.14
+ARG installer=1.0.3
 
 ENV version=$version
 ENV loader=$loader
@@ -24,7 +24,7 @@ RUN wget "https://meta.fabricmc.net/v2/versions/loader/${version}/${loader}/${in
 
 ######################################################################################
 
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:11-jdk
 
 RUN apt-get update -y && apt-get upgrade -y
 

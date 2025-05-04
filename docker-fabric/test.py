@@ -1,0 +1,18 @@
+import os
+
+print("1.14")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.14")
+print("1.15")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.15")
+print("1.16")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.16")
+print("1.17")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.17")
+print("1.18")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.18")
+print("1.19")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.19")
+print("1.20")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.20")
+print("1.21")
+os.system("docker run -it --rm v1k1ngbg/fabric:1.21")

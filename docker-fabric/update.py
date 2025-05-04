@@ -36,6 +36,14 @@ for i in range(len(stable)):
     if lastversion == "" or lastversion.split(".")[1] != stable[i].split(".")[1]:
 
         f.write(str(stable[i])+"\n")
+        if int(stable[i].split(".")[1]) >= 20:
+            f.write("21\n")
+        elif int(stable[i].split(".")[1]) >= 17:
+            f.write("17\n")
+        elif int(stable[i].split(".")[1]) >= 13:
+            f.write("11\n")
+        else:
+            f.write("8\n")
 
     lastversion = stable[i]
 f.close()
