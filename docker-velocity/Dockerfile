@@ -36,6 +36,6 @@ ENV max=2
 
 CMD ln -sf /plugins /data/ \
     && echo "eula=TRUE" > eula.txt \
-    && java "-Xms${min}G" "-Xmx${max}G" -XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch -jar /velocity.jar
+    && java "-Xms${min}G" "-Xmx${max}G" -jar /velocity.jar
 
 EXPOSE 25577
