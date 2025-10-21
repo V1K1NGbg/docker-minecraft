@@ -5,7 +5,5 @@
 - [Forge](https://files.minecraftforge.net/)
 - [Fabric](https://fabricmc.net/)
 - [Velocity](https://velocitypowered.com/)
-- [Vanilla](https://www.minecraft.net/) (Not yet, but maybe)
+- [Vanilla](https://www.minecraft.net/)
 - [Waterfall](https://papermc.io/) (Deprecated)
-
-For now...
