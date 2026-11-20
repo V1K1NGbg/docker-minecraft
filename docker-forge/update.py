@@ -1,55 +1,25 @@
-import json
 import os
-import urllib.request
+import sys
 
-dirname = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-filename = os.path.join(dirname, 'versionsandbuilds.txt')
+from common import *
 
-os.system("rm "+ filename)
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-f = open(filename, "a")
+# versionsandbuilds.txt: 3 lines per docker tag, oldest first: minecraft version / forge build / java
 
-def getversion(url):
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    url = urllib.request.urlopen(req)
-    data = url.read()
-    mydict = json.loads(data)
-    return mydict
+promos = getjson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json")["promos"]
 
-j = getversion("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json")
+recommended = [k.rsplit("-", 1)[0] for k in promos if k.endswith("-recommended")]
+recommended = [v for v in recommended if is_release(v) and vkey(v) >= [1, 7]]
 
-# print(j["promos"]["1.1-latest"])
+lines = []
 
-allov = [x.split("-")[0] for x in j["promos"] if x.split("-")[1] == "recommended"]
-allv = j["promos"]
+for version in newest_per_tag(recommended):
+    # forge 1.13 / 1.14 crash on java 11 (UnsupportedOperationException on launch), they need java 8
+    lines += [version, promos[version + "-recommended"], "8" if tag(version) in ("1.13", "1.14") else java(version)]
 
-# print(allv)
+write_lines(FOLDER, lines)
 
-l = "1."
-
-for i in allov:
-
-    if (''.join(filter(str.isdigit, i.split(".")[1])) != ''.join(filter(str.isdigit, l.split(".")[1]))) and int(''.join(filter(str.isdigit, i.split(".")[1]))) > 7:
-        
-        f.write(l+"\n")
-        f.write(allv[l + "-recommended"]+"\n")
-
-        if int(l.split(".")[1]) >= 20:
-            f.write("21\n")
-        elif int(l.split(".")[1]) >= 17:
-            f.write("17\n")
-        elif int(l.split(".")[1]) >= 13:
-            f.write("11\n")
-        else:
-            f.write("8\n")
-
-    l = i
-
-f.write(l+"\n")
-f.write(allv[l + "-recommended"]+"\n")
-f.write("21")
-
-f.close()
-
-print("Update Complete!")
+print("Forge update complete!")

@@ -1,43 +1,20 @@
 import os
+import sys
 
-version = {}
-versionshort = {}
-java = {}
-loader = ""
-installer = ""
-count = 0
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-os.system('python3 update.py')
+from common import *
 
-dirname = os.path.dirname(__file__)
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-filename = os.path.join(dirname, 'versionsandbuilds.txt')
 
-f = open(filename)
+def jobs():
+    run_update(FOLDER)
+    l = read_lines(FOLDER)
+    return [job("fabric", tag(l[i]), FOLDER, "Dockerfile" + l[i + 1],
+                {"version": l[i], "loader": l[1], "installer": l[0], "flags": jvm_flags(l[i + 1])})
+            for i in range(2, len(l), 2)]
 
-lines = len(f.readlines())
-f.seek(0)
 
-installer = f.readline().replace('\n', '')
-loader = f.readline().replace('\n', '')
-
-while count < (lines-2) / 2:
-
-    """print(count, installer, loader, version, versionshort)"""
-    version[count] = f.readline().replace('\n', '')
-    versionshort[count] = version[count].split('.')[0] + "." + version[count].split('.')[1]
-    java[count] = f.readline().replace('\n', '')
-    count = count + 1
-
-os.system('docker container prune -f')
-os.system('docker image prune -f')
-
-for x in range(0, round((lines-2) / 2)):
-
-    os.system("docker image rm v1k1ngbg/fabric:"+versionshort[x]+" -f")
-    os.system("docker build -t v1k1ngbg/fabric:"+versionshort[x]+" -f Dockerfile"+java[x]+" --build-arg version="+version[x]+" --build-arg loader="+loader+" --build-arg installer="+installer+" .")
-    os.system("docker push v1k1ngbg/fabric:"+versionshort[x])
-
-os.system('docker image prune -f')
-
-f.close()
+if __name__ == "__main__":
+    sys.exit(0 if run_jobs(jobs()) else 1)

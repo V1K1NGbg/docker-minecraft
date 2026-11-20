@@ -1,33 +1,30 @@
-import json
 import os
-import urllib.request
+import sys
 
-dirname = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-filename = os.path.join(dirname, 'versionsandbuilds.txt')
+from common import *
 
-os.system("rm "+filename)
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-f = open(filename, "a")
+# versionsandbuilds.txt: latest release version / build / latest snapshot version / build
 
-def readandprocess(url):
-    url = urllib.request.urlopen(url)
-    data = url.read()
-    mydict = json.loads(data)
-    return mydict
-
-j = readandprocess("https://api.papermc.io/v2/projects/velocity/")
-
-mydictns = [x for x in j["versions"] if  not x.endswith("SNAPSHOT")]
-mydict = j["versions"]
-
-f.write(str(mydictns[-1])+"\n")
-f.write(str(readandprocess("https://api.papermc.io/v2/projects/velocity/versions/"+mydictns[-1])["builds"][-1])+"\n")
-
-f.write(str(mydict[-1])+"\n")
-f.write(str(readandprocess("https://api.papermc.io/v2/projects/velocity/versions/"+mydict[-1])["builds"][-1])+"\n")
+API = "https://fill.papermc.io/v3/projects/velocity"
 
 
-f.close()
+def key(version):
+    return vkey(version.split("-")[0])
 
-print("Update Complete!")
+
+def build(version):
+    return str(getjson(API + "/versions/" + version + "/builds/latest")["id"])
+
+
+allversions = [v for family in getjson(API)["versions"].values() for v in family]
+
+release = max([v for v in allversions if not v.endswith("SNAPSHOT")], key=key)
+snapshot = max([v for v in allversions if v.endswith("SNAPSHOT")], key=key)
+
+write_lines(FOLDER, [release, build(release), snapshot, build(snapshot)])
+
+print("Velocity update complete!")

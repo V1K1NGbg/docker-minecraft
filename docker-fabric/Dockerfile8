@@ -42,11 +42,16 @@ WORKDIR /data
 
 USER minecraft
 
-ENV min=1
-ENV max=2
+ARG flags=""
 
-CMD ln -sf /mods /data/ \
-    && echo 'eula=TRUE' > eula.txt \
-    && java "-Xms${min}G" "-Xmx${max}G" -jar /fabric.jar nogui
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="-jar /fabric.jar" \
+    SERVER_ARGS="nogui"
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
 
 EXPOSE 25565

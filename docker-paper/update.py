@@ -1,46 +1,24 @@
-import json
 import os
-import urllib.request
+import sys
 
-dirname = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-filename = os.path.join(dirname, 'versionsandbuilds.txt')
+from common import *
 
-os.system("rm "+ filename)
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-f = open(filename, "a")
+# versionsandbuilds.txt: 3 lines per docker tag, oldest first: version / build / java
 
-def readandprocess(url):
-    url = urllib.request.urlopen(url)
-    data = url.read()
-    mydict = json.loads(data)
-    return mydict
+API = "https://fill.papermc.io/v3/projects/paper"
 
-mydict = readandprocess("https://api.papermc.io/v2/projects/paper/")
-lastversion = ""
+allversions = [v for family in getjson(API)["versions"].values() for v in family]
 
-for i in range(len(mydict["versions"])):
+lines = []
 
-    if lastversion != "" and lastversion.split(".")[1] != mydict["versions"][i].split(".")[1] and lastversion!="1.13-pre7":
+for version in newest_per_tag(allversions):
+    build = getjson(API + "/versions/" + version + "/builds/latest")["id"]
+    lines += [version, str(build), java(version)]
 
-        f.write(str(lastversion)+"\n")
-        f.write(str(readandprocess("https://api.papermc.io/v2/projects/paper/versions/"+lastversion)["builds"][-1])+"\n")
-        
-        if int(lastversion.split(".")[1]) >= 20:
-            f.write("21\n")
-        elif int(lastversion.split(".")[1]) >= 17:
-            f.write("17\n")
-        elif int(lastversion.split(".")[1]) >= 13:
-            f.write("11\n")
-        else:
-            f.write("8\n")
+write_lines(FOLDER, lines)
 
-    lastversion = mydict["versions"][i]
-
-f.write(str(mydict["versions"][i])+"\n")
-f.write(str(readandprocess("https://api.papermc.io/v2/projects/paper/versions/"+mydict["versions"][i])["builds"][-1])+"\n")
-f.write("21")
-
-f.close()
-
-print("Update Complete!")
+print("Paper update complete!")

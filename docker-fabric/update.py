@@ -1,60 +1,21 @@
-import json
 import os
-import urllib.request
+import sys
 
-dirname = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-filename = os.path.join(dirname, 'versionsandbuilds.txt')
+from common import *
 
-os.system("rm "+ filename)
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-f = open(filename, "a")
+# versionsandbuilds.txt: installer / loader, then 2 lines per docker tag, oldest first: version / java
 
-def getversion(url):
-    url = urllib.request.urlopen(url)
-    data = url.read()
-    mydict = json.loads(data)
-    return mydict
+API = "https://meta.fabricmc.net/v2/versions"
 
-f.write(str(getversion("https://meta.fabricmc.net/v2/versions/installer")[0]["version"])+"\n")
-f.write(str(getversion("https://meta.fabricmc.net/v2/versions/loader/")[0]["version"])+"\n")
+lines = [getjson(API + "/installer")[0]["version"], getjson(API + "/loader")[0]["version"]]
 
-mydict = getversion("https://meta.fabricmc.net/v2/versions/")["game"]
-stable = {}
-lastversion = ""
-j=0
+for version in newest_per_tag([v["version"] for v in getjson(API + "/game") if v["stable"]]):
+    lines += [version, java(version)]
 
-for i in range(len(mydict)):
+write_lines(FOLDER, lines)
 
-    if mydict[i]["stable"]:
-
-        stable[j] = mydict[i]["version"]
-        j=j+1
-
-for i in range(len(stable)):
-
-    if lastversion == "" or lastversion.split(".")[1] != stable[i].split(".")[1]:
-
-        f.write(str(stable[i])+"\n")
-        if int(stable[i].split(".")[1]) >= 20:
-            f.write("21\n")
-        elif int(stable[i].split(".")[1]) >= 17:
-            f.write("17\n")
-        elif int(stable[i].split(".")[1]) >= 13:
-            f.write("11\n")
-        else:
-            f.write("8\n")
-
-    lastversion = stable[i]
-f.close()
-f=open("versionsandbuilds.txt","r")
-d=f.read()
-f.close()
-m=d.split("\n")
-s="\n".join(m[:-1])
-f=open("versionsandbuilds.txt","w+")
-for i in range(len(s)):
-    f.write(s[i])
-f.close()
-
-print("Update Complete!")
+print("Fabric update complete!")

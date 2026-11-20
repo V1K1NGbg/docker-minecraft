@@ -1,0 +1,54 @@
+FROM eclipse-temurin:25-jdk as build
+
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget jq -y \
+    && git config --global core.autocrlf input
+
+ARG version=1.21.6
+ARG build
+
+ENV version=$version
+ENV build=$build
+
+# curl https://fill.papermc.io/v3/projects/paper
+# for version
+
+# curl https://fill.papermc.io/v3/projects/paper/versions/${version}/builds/latest
+# for build
+
+RUN wget -qO- "https://fill.papermc.io/v3/projects/paper/versions/${version}/builds/${build}" \
+    | jq -r '.downloads["server:default"].url' \
+    | xargs wget -O "paper.jar"
+######################################################################################
+
+FROM eclipse-temurin:25-jdk
+
+RUN apt-get update -y
+RUN apt-get upgrade -y
+
+COPY --from=build /paper.jar /
+
+RUN mkdir -p /data \
+    && mkdir -p /plugins \
+    && adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
+    && chown -R minecraft /data /plugins /home/minecraft \
+    && chmod -R 755 /data /home/minecraft
+
+VOLUME ["/data","/plugins"]
+
+WORKDIR /data
+
+USER minecraft
+
+ARG flags=""
+
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="-jar /paper.jar" \
+    SERVER_ARGS="nogui"
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
+
+EXPOSE 25565

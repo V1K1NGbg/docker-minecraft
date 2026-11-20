@@ -1,58 +1,18 @@
 import os
+import sys
 
-os.system('docker container prune -f')
-os.system('docker image prune -f')
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-os.system("docker image rm v1k1ngbg/vanilla:latest -f")
-os.system("docker build -t v1k1ngbg/vanilla:latest .")
-os.system("docker push v1k1ngbg/vanilla:latest")
+from common import *
 
-os.system('docker image prune -f')
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-# import os
 
-# versions = {}
-# versionsshort = {}
-# builds = {}
-# count = 0
-# number = 0
+def jobs():
+    run_update(FOLDER)
+    l = read_lines(FOLDER)
+    return [job("vanilla", "latest", FOLDER, args={"version": l[0], "java": l[1], "flags": jvm_flags(l[1])})]
 
-# os.system("python3 update.py")
 
-# dirname = os.path.dirname(__file__)
-
-# filename = os.path.join(dirname, 'versionsandbuilds.txt')
-
-# f = open(filename)
-
-# lines = len(f.readlines())
-# f.seek(0)
-
-# while count < lines:
-
-#     # print(number, count, versions, versionsshort, builds)
-
-#     if count % 2 == 0:
-
-#         versions[number] = f.readline().replace('\n', '')
-#         versionsshort[number] = versions[number].split('.')[0] + "." + versions[number].split('.')[1]
-
-#     else:
-
-#         builds[number] = f.readline().replace('\n', '')
-#         number = number + 1
-
-#     count = count + 1
-
-# os.system('docker container prune -f')
-# os.system('docker image prune -f')
-
-# for x in range(0, round(lines/2)):
-
-#     os.system("docker image rm v1k1ngbg/paper:"+versionsshort[x]+" -f")
-#     os.system("docker build -t v1k1ngbg/paper:"+versionsshort[x]+" --build-arg version="+versions[x]+" --build-arg build="+builds[x]+" .")
-#     os.system("docker push v1k1ngbg/paper:"+versionsshort[x])
-
-# os.system('docker image prune -f')
-
-# f.close()
+if __name__ == "__main__":
+    sys.exit(0 if run_jobs(jobs()) else 1)

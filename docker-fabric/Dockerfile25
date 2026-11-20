@@ -1,0 +1,57 @@
+FROM eclipse-temurin:25-jdk as build
+
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
+    && git config --global core.autocrlf input
+
+ARG version=1.21.5
+ARG loader=0.16.14
+ARG installer=1.0.3
+
+ENV version=$version
+ENV loader=$loader
+ENV installer=$installer
+
+# curl https://meta.fabricmc.net/v2/versions/game
+# for version
+
+# curl https://meta.fabricmc.net/v2/versions/loader
+# for loader
+
+# curl https://meta.fabricmc.net/v2/versions/installer
+# for installer
+
+RUN wget "https://meta.fabricmc.net/v2/versions/loader/${version}/${loader}/${installer}/server/jar" -O "fabric.jar"
+
+######################################################################################
+
+FROM eclipse-temurin:25-jdk
+
+RUN apt-get update -y && apt-get upgrade -y
+
+COPY --from=build /fabric.jar /
+
+RUN mkdir -p /data \
+    && mkdir -p /mods \
+    && adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
+    && chown -R minecraft /data /mods /home/minecraft \
+    && chmod -R 755 /data /home/minecraft
+
+VOLUME ["/data","/mods"]
+
+WORKDIR /data
+
+USER minecraft
+
+ARG flags=""
+
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="-jar /fabric.jar" \
+    SERVER_ARGS="nogui"
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
+
+EXPOSE 25565

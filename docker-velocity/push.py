@@ -1,33 +1,19 @@
 import os
+import sys
 
-count = 0
-number = 0
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-os.system("python3 update.py")
+from common import *
 
-dirname = os.path.dirname(__file__)
+FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-filename = os.path.join(dirname, 'versionsandbuilds.txt')
 
-f = open(filename)
+def jobs():
+    run_update(FOLDER)
+    l = read_lines(FOLDER)
+    return [job("velocity", l[0].split(".")[0], FOLDER, args={"version": l[0], "build": l[1], "flags": FLAGS_PROXY}),
+            job("velocity", l[2].split(".")[0] + "S", FOLDER, args={"version": l[2], "build": l[3], "flags": FLAGS_PROXY})]
 
-version = f.readline().replace('\n', '')
-build = f.readline().replace('\n', '')
 
-os.system('docker container prune -f')
-os.system('docker image prune -f')
-
-os.system("docker image rm v1k1ngbg/velocity:"+version.split(".")[0]+" -f")
-os.system("docker build -t v1k1ngbg/velocity:"+version.split(".")[0]+" --build-arg version="+version+" --build-arg build="+build+" .")
-os.system("docker push v1k1ngbg/velocity:"+version.split(".")[0])
-
-version = f.readline().replace('\n', '')
-build = f.readline().replace('\n', '')
-
-os.system("docker image rm v1k1ngbg/velocity:"+version.split(".")[0]+"S -f")
-os.system("docker build -t v1k1ngbg/velocity:"+version.split(".")[0]+"S --build-arg version="+version+" --build-arg build="+build+" .")
-os.system("docker push v1k1ngbg/velocity:"+version.split(".")[0]+"S")
-
-os.system('docker image prune -f')
-
-f.close()
+if __name__ == "__main__":
+    sys.exit(0 if run_jobs(jobs()) else 1)

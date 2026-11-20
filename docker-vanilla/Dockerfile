@@ -1,14 +1,26 @@
-FROM eclipse-temurin:21-jdk as build
+ARG java=25
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
+FROM eclipse-temurin:${java}-jdk as build
+
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget jq -y \
     && git config --global core.autocrlf input
 
-# 1.21.4
-RUN wget "https://piston-data.mojang.com/v1/objects/e6ec2f64e6080b9b5d9b471b291c33cc7f509733/server.jar" -O "vanilla.jar"
+ARG version
+
+ENV version=$version
+
+# curl https://piston-meta.mojang.com/mc/game/version_manifest_v2.json
+# for version
+
+RUN wget -qO- "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json" \
+    | jq -r --arg v "${version}" '.versions[] | select(.id == $v) | .url' \
+    | xargs wget -qO- \
+    | jq -r '.downloads.server.url' \
+    | xargs wget -O "vanilla.jar"
 
 ######################################################################################
 
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:${java}-jdk
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
@@ -26,11 +38,16 @@ WORKDIR /data
 
 USER minecraft
 
-ENV min=1
-ENV max=2
+ARG flags=""
 
-CMD ln -sf /data/ \
-    && echo 'eula=TRUE' > eula.txt \
-    && java "-Xms${min}G" "-Xmx${max}G" -jar /vanilla.jar nogui
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="-jar /vanilla.jar" \
+    SERVER_ARGS="nogui"
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
 
 EXPOSE 25565

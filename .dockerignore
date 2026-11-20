@@ -1,0 +1,3 @@
+# images are built from the repo root (so they can share start.sh), only send what they need
+*
+!start.sh

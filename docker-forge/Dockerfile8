@@ -17,7 +17,9 @@ ENV long_file=$long_file
 RUN wget "https://maven.minecraftforge.net/net/minecraftforge/forge/${version}-${build}${long_file}/forge-${version}-${build}${long_file}-installer.jar" -O "forge.jar" \
     && java -jar forge.jar --installServer \
     && rm forge.jar* \
-    && [ -e forge*.jar ] && mv forge*.jar forge.jar || echo "no forge" 
+    && if [ -e run.sh ]; then echo "using run.sh"; \
+       elif [ -e forge*.jar ]; then mv forge*.jar forge.jar; \
+       else echo "no forge"; fi
 
 ######################################################################################
 
@@ -28,7 +30,7 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN mkdir -p /data \
     && mkdir -p /mods
 
-COPY --from=build /run.sh* /user_jvm_args.txt* /forge.jar* /minecraft*.jar /data/
+COPY --from=build /run.sh* /user_jvm_args.txt* /forge*.jar* /minecraft*.jar /data/
 COPY --from=build /libraries /data/libraries
 
 RUN adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
@@ -42,13 +44,17 @@ WORKDIR /data
 
 USER minecraft
 
-ENV min=1
-ENV max=2
+ARG flags=""
+ARG start="-jar /data/forge.jar"
 
-CMD ln -sf /mods /data/ \
-    && echo 'eula=TRUE' >| eula.txt \
-    # && ls -a \
-    # && java -version \
-    && [ -e ./run.sh ] && (echo "-Xms${min}G" "-Xmx${max}G" >| user_jvm_args.txt && ./run.sh) || java -server "-Xms${min}G" "-Xmx${max}G" -jar ./forge.jar nogui
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="$start" \
+    SERVER_ARGS="nogui"
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
 
 EXPOSE 25565

@@ -1,19 +1,21 @@
-FROM eclipse-temurin:21-jdk as build
+FROM eclipse-temurin:25-jdk as build
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget jq -y
 RUN git config --global core.autocrlf input
 
 ARG version=3.1.1
-ARG build=102
+ARG build
 
 ENV version=$version
 ENV build=$build
 
-RUN wget "https://api.papermc.io/v2/projects/velocity/versions/${version}/builds/${build}/downloads/velocity-${version}-${build}.jar" -O "/velocity.jar"
+RUN wget -qO- "https://fill.papermc.io/v3/projects/velocity/versions/${version}/builds/${build}" \
+    | jq -r '.downloads["server:default"].url' \
+    | xargs wget -O "/velocity.jar"
 
 ######################################################################################
 
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:25-jdk
 
 RUN apt-get update -y && apt-get upgrade -y
 
@@ -31,11 +33,16 @@ WORKDIR /data
 
 USER minecraft
 
-ENV min=1
-ENV max=2
+ARG flags=""
 
-CMD ln -sf /plugins /data/ \
-    && echo "eula=TRUE" > eula.txt \
-    && java "-Xms${min}G" "-Xmx${max}G" -jar /velocity.jar
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="-jar /velocity.jar" \
+    SERVER_ARGS=""
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
 
 EXPOSE 25577

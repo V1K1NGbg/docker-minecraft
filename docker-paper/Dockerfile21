@@ -1,21 +1,23 @@
 FROM eclipse-temurin:21-jdk as build
 
-RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget -y \
+RUN apt-get update -y && apt-get upgrade -y && apt-get install git wget jq -y \
     && git config --global core.autocrlf input
 
 ARG version=1.21.6
-ARG build=46
+ARG build
 
 ENV version=$version
 ENV build=$build
 
-# curl https://api.papermc.io/v2/projects/paper/
+# curl https://fill.papermc.io/v3/projects/paper
 # for version
 
-# curl https://api.papermc.io/v2/projects/paper/versions/${version}
+# curl https://fill.papermc.io/v3/projects/paper/versions/${version}/builds/latest
 # for build
 
-RUN wget "https://api.papermc.io/v2/projects/paper/versions/${version}/builds/${build}/downloads/paper-${version}-${build}.jar" -O "paper.jar"
+RUN wget -qO- "https://fill.papermc.io/v3/projects/paper/versions/${version}/builds/${build}" \
+    | jq -r '.downloads["server:default"].url' \
+    | xargs wget -O "paper.jar"
 ######################################################################################
 
 FROM eclipse-temurin:21-jdk
@@ -37,11 +39,16 @@ WORKDIR /data
 
 USER minecraft
 
-ENV min=1
-ENV max=2
+ARG flags=""
 
-CMD ln -sf /plugins /data/ \
-    && echo 'eula=TRUE' > eula.txt \
-    && java "-Xms${min}G" "-Xmx${max}G" -jar /paper.jar nogui
+ENV min=1 \
+    max=2 \
+    JAVA_FLAGS="$flags" \
+    SERVER_START="-jar /paper.jar" \
+    SERVER_ARGS="nogui"
+
+COPY start.sh /start.sh
+
+CMD ["/start.sh"]
 
 EXPOSE 25565
