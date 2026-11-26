@@ -7,12 +7,16 @@ from common import *
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-# versionsandbuilds.txt: latest release version / java
+# versionsandbuilds.txt: 2 lines per version: the latest release first, then the manual versions
+# (common.MANUAL), each: version / java
 
 manifest = getjson("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json")
-version = manifest["latest"]["release"]
-url = [v["url"] for v in manifest["versions"] if v["id"] == version][0]
+urls = {v["id"]: v["url"] for v in manifest["versions"] if v["type"] == "release"}
 
-write_lines(FOLDER, [version, str(getjson(url)["javaVersion"]["majorVersion"])])
+lines = []
+for version in [manifest["latest"]["release"]] + manual("vanilla", urls):
+    lines += [version, str(getjson(urls[version])["javaVersion"]["majorVersion"])]
+
+write_lines(FOLDER, lines)
 
 print("Vanilla update complete!")

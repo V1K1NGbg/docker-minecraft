@@ -11,7 +11,7 @@ FOLDER = os.path.dirname(os.path.abspath(__file__))
 def jobs():
     run_update(FOLDER)
     l = read_lines(FOLDER)
-    return [job("fabric", tag(l[i]), FOLDER, "Dockerfile" + l[i + 1],
+    return [job("fabric", tag(l[i], "fabric"), FOLDER, "Dockerfile" + l[i + 1],
                 {"version": l[i], "loader": l[1], "installer": l[0], "flags": jvm_flags(l[i + 1])})
             for i in range(2, len(l), 2)]
 

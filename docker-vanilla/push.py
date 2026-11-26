@@ -11,7 +11,9 @@ FOLDER = os.path.dirname(os.path.abspath(__file__))
 def jobs():
     run_update(FOLDER)
     l = read_lines(FOLDER)
-    return [job("vanilla", "latest", FOLDER, args={"version": l[0], "java": l[1], "flags": jvm_flags(l[1])})]
+    # the latest release is "latest", the manual versions are tagged with their version
+    return [job("vanilla", "latest" if i == 0 else l[i], FOLDER, args={"version": l[i], "java": l[i + 1], "flags": jvm_flags(l[i + 1])})
+            for i in range(0, len(l), 2)]
 
 
 if __name__ == "__main__":

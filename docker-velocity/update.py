@@ -7,7 +7,8 @@ from common import *
 
 FOLDER = os.path.dirname(os.path.abspath(__file__))
 
-# versionsandbuilds.txt: latest release version / build / latest snapshot version / build
+# versionsandbuilds.txt: latest release version / build / latest snapshot version / build, then
+# version / build for each manual version (common.MANUAL)
 
 API = "https://fill.papermc.io/v3/projects/velocity"
 
@@ -25,6 +26,10 @@ allversions = [v for family in getjson(API)["versions"].values() for v in family
 release = max([v for v in allversions if not v.endswith("SNAPSHOT")], key=key)
 snapshot = max([v for v in allversions if v.endswith("SNAPSHOT")], key=key)
 
-write_lines(FOLDER, [release, build(release), snapshot, build(snapshot)])
+lines = [release, build(release), snapshot, build(snapshot)]
+for version in manual("velocity", allversions):
+    lines += [version, build(version)]
+
+write_lines(FOLDER, lines)
 
 print("Velocity update complete!")

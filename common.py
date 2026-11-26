@@ -29,8 +29,35 @@ def vkey(version):
     return [int(x) for x in version.split(".")]
 
 
-def tag(version):
-    """Docker tag for a Minecraft version: 1.21.11 -> 1.21, 26.3 -> 26."""
+# Extra versions built besides the newest of each line (modpacks often stay on these), tagged
+# with their full version (forge:1.20.1, vanilla:1.20.1); their build is still the newest one,
+# fetched by update.py like the others. A version that does not exist upstream stops the update.
+MANUAL = {
+    "paper": [],
+    "fabric": [],
+    "forge": ["1.19.2", "1.20.1"],
+    "vanilla": [],
+    "velocity": [],  # e.g. "3.4.0-SNAPSHOT"
+}
+
+
+def manual(server, known):
+    """This server's manual versions, each checked against the versions upstream offers."""
+    unknown = [v for v in MANUAL.get(server, []) if v not in known]
+    if unknown:
+        raise SystemExit(server + ": unknown manual version(s) " + ", ".join(unknown) + " (common.MANUAL)")
+    return list(MANUAL.get(server, []))
+
+
+def with_manual(server, versions, known):
+    """The newest of every line plus this server's manual versions, oldest first."""
+    return sorted(set(newest_per_tag(versions)) | set(manual(server, known)), key=vkey)
+
+
+def tag(version, server=None):
+    """Docker tag for a Minecraft version: 1.21.11 -> 1.21, 26.3 -> 26; a manual version keeps its full version."""
+    if version in MANUAL.get(server, []):
+        return version
     parts = version.split(".")
     return parts[0] + "." + parts[1] if parts[0] == "1" else parts[0]
 
@@ -41,8 +68,12 @@ def java(version):
     if parts[0] != "1":
         return "25"  # year based versions (26.x and newer)
     minor = int(parts[1])
-    if minor >= 20:
+    patch = int(parts[2]) if len(parts) > 2 else 0
+    # 1.20.5 moved to java 21; 1.20 - 1.20.4 still run on java 17
+    if minor > 20 or (minor == 20 and patch >= 5):
         return "21"
+    if minor == 20:
+        return "17"
     elif minor >= 17:
         return "17"
     elif minor >= 13:

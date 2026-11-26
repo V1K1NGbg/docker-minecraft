@@ -15,7 +15,7 @@ allversions = [v for family in getjson(API)["versions"].values() for v in family
 
 lines = []
 
-for version in newest_per_tag(allversions):
+for version in with_manual("paper", allversions, allversions):
     build = getjson(API + "/versions/" + version + "/builds/latest")["id"]
     lines += [version, str(build), java(version)]
 

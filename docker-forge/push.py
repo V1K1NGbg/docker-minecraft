@@ -24,7 +24,7 @@ def start(version, build):
 def jobs():
     run_update(FOLDER)
     l = read_lines(FOLDER)
-    return [job("forge", tag(l[i]), FOLDER, "Dockerfile" + l[i + 2],
+    return [job("forge", tag(l[i], "forge"), FOLDER, "Dockerfile" + l[i + 2],
                 {"version": l[i], "build": l[i + 1], "long_file": long_file(l[i]), "start": start(l[i], l[i + 1]), "flags": jvm_flags(l[i + 2])})
             for i in range(0, len(l), 3)]
 

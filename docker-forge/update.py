@@ -16,9 +16,15 @@ recommended = [v for v in recommended if is_release(v) and vkey(v) >= [1, 7]]
 
 lines = []
 
-for version in newest_per_tag(recommended):
+# the newest of every line, plus the manual versions (common.MANUAL), each with its newest recommended
+# build (or the newest build when there is no recommended one yet)
+known = {k.rsplit("-", 1)[0] for k in promos}
+versions = with_manual("forge", recommended, known)
+
+for version in versions:
+    build = promos.get(version + "-recommended") or promos[version + "-latest"]
     # forge 1.13 / 1.14 crash on java 11 (UnsupportedOperationException on launch), they need java 8
-    lines += [version, promos[version + "-recommended"], "8" if tag(version) in ("1.13", "1.14") else java(version)]
+    lines += [version, build, "8" if tag(version) in ("1.13", "1.14") else java(version)]
 
 write_lines(FOLDER, lines)
 
