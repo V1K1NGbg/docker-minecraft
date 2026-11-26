@@ -31,7 +31,7 @@ RUN mkdir -p /data \
     && mkdir -p /plugins \
     && adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
     && chown -R minecraft /data /plugins /home/minecraft \
-    && chmod -R 755 /data /home/minecraft
+    && chmod -R 755 /data /home/minecraft && chmod 1777 /data /plugins
 
 VOLUME ["/data","/plugins"]
 

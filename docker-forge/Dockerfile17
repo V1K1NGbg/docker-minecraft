@@ -30,12 +30,12 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN mkdir -p /data \
     && mkdir -p /mods
 
-COPY --from=build /run.sh* /user_jvm_args.txt* /forge*.jar* /minecraft*.jar /data/
-COPY --from=build /libraries /data/libraries
+COPY --from=build /run.sh* /user_jvm_args.txt* /forge*.jar* /minecraft*.jar /opt/server/
+COPY --from=build /libraries /opt/server/libraries
 
 RUN adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
     && chown -R minecraft /data /mods /home/minecraft \
-    && chmod -R 755 /data /home/minecraft \
+    && chmod -R 755 /data /home/minecraft && chmod 1777 /data /mods \
     && [ -e /run.sh ] && chmod +x /run.sh || echo "no run.sh"
 
 VOLUME ["/data","/mods"]

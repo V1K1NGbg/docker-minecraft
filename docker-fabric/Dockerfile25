@@ -34,7 +34,7 @@ RUN mkdir -p /data \
     && mkdir -p /mods \
     && adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
     && chown -R minecraft /data /mods /home/minecraft \
-    && chmod -R 755 /data /home/minecraft
+    && chmod -R 755 /data /home/minecraft && chmod 1777 /data /mods
 
 VOLUME ["/data","/mods"]
 

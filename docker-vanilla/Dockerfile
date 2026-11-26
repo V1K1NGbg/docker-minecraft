@@ -30,7 +30,7 @@ COPY --from=build /vanilla.jar /
 RUN mkdir -p /data \
     && adduser --disabled-password --gecos "" --home /home/minecraft minecraft \
     && chown -R minecraft /data /home/minecraft \
-    && chmod -R 755 /data /home/minecraft
+    && chmod -R 755 /data /home/minecraft && chmod 1777 /data
 
 VOLUME ["/data"]
 
